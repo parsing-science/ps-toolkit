@@ -13,11 +13,11 @@ from core.exc import PSToolkitError
 
 
 class HLM(BaseEstimator):
-	"""
-	Custom Hierachical Linear Model built using PyMC3.
-	"""
+    """
+    Custom Hierachical Linear Model built using PyMC3.
+    """
 
-	def __init__(self):
+    def __init__(self):
         self.cached_model = None
         self.shared_vars = None
         self.num_cats = None
