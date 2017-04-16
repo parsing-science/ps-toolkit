@@ -1,0 +1,8 @@
+joblib
+matplotlib
+numpy
+pandas>=0.19
+pymc3
+scikitlearn
+scipy
+seaborn
