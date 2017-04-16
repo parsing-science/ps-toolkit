@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.exceptions import NotFittedError
 from sklearn.metrics import roc_curve, auc
 
-from sonic_screwdrivers.exc import SonicScrewdriverError
+from core.exc import PSToolkitError
 
 
 class ROCCurveVisualizer(object):
@@ -33,25 +33,25 @@ class ROCCurveVisualizer(object):
             probabilities = np.array(probabilities)
             probabilities = probabilities.squeeze()
         except:
-            raise SonicScrewdriverError("The probabilities must be castable to a numpy array.")
+            raise PSToolkitError("The probabilities must be castable to a numpy array.")
 
         if probabilities.ndim != 1:
-            raise SonicScrewdriverError("The probabilities must be a one dimensional numpy array, list, or tuple.")
+            raise PSToolkitError("The probabilities must be a one dimensional numpy array, list, or tuple.")
 
         if type(Y)==pd.DataFrame and len(Y.columns) != 1:
-            raise SonicScrewdriverError("Y must be a one-column DataFrame or Series.")
+            raise PSToolkitError("Y must be a one-column DataFrame or Series.")
 
         if len(Y) != len(probabilities):
-            raise SonicScrewdriverError("The probabilities and Y must be the same size.")
+            raise PSToolkitError("The probabilities and Y must be the same size.")
 
         if Y.isnull().any().any():
-            raise SonicScrewdriverError("Y contains NaNs.")
+            raise PSToolkitError("Y contains NaNs.")
 
         if np.isnan(probabilities).any():
-            raise SonicScrewdriverError("The probabilities contains NaNs.")
+            raise PSToolkitError("The probabilities contains NaNs.")
 
         if not (probabilities >= 0).all() or not (probabilities <= 1).all():
-            raise SonicScrewdriverError("The probabilities must be between 0 and 1.")
+            raise PSToolkitError("The probabilities must be between 0 and 1.")
 
         fpr, tpr, thresholds = roc_curve(Y, probabilities, pos_label, sample_weight)
         self.fpr_ = fpr

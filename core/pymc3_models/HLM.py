@@ -49,7 +49,7 @@ class HLM(BaseEstimator):
             mu_beta = pm.Normal("mu_beta", mu=0, sd=10)
             sigma_beta = pm.HalfNormal("sigma_beta", sd=10)
 
-            alpha = pm.Normal('alpha', mu=mu_alpha, sd=sigma_alpha, shape=(self.num_markets,))
+            alpha = pm.Normal('alpha', mu=mu_alpha, sd=sigma_alpha, shape=(self.num_cats,))
             beta = pm.Normal('beta', mu=mu_beta, sd=sigma_beta, shape=(self.num_cats, self.num_pred))
 
             c = model_cats
@@ -82,7 +82,7 @@ class HLM(BaseEstimator):
                 minibatch_tensors=minibatch_tensors,
                 minibatch_RVs=minibatch_RVs,
                 minibatches=minibatches,
-                total_size=num_samples,
+                total_size=int(num_samples),
                 learning_rate=1e-2,
                 epsilon=1.0
             )
@@ -106,7 +106,7 @@ class HLM(BaseEstimator):
         self.num_cats = len(np.unique(cats))
         num_samples, self.num_pred = X.shape
 
-        #model_input, model_output, model_markets = self._create_shared_vars(X, y, markets)
+        #model_input, model_output, model_cats = self._create_shared_vars(X, y, cats)
 
         if self.cached_model is None:
             self.cached_model, o = self.create_model()
@@ -149,7 +149,7 @@ class HLM(BaseEstimator):
             ixs = np.random.randint(num_samples, size=size)
             yield [tensor[ixs] for tensor in data]
 
-    def predict_proba(self, X, markets):
+    def predict_proba(self, X, cats):
         """
         Predicts probabilities of new data with a trained HLM
 
@@ -157,7 +157,7 @@ class HLM(BaseEstimator):
         ----------
         X : numpy array, shape [n_samples, n_features]
 
-        markets: numpy array, shape [n_samples, ]
+        cats: numpy array, shape [n_samples, ]
         """
 
         if self.advi_trace is None:

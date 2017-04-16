@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.exceptions import NotFittedError
 
-from sonic_screwdrivers.exc import SonicScrewdriverError
+from core.exc import PSToolkitError
 
 
 class SeparationPlotVisualizer(object):
@@ -25,22 +25,22 @@ class SeparationPlotVisualizer(object):
         """
 
         if type(Y)==pd.DataFrame and len(Y.columns) != 1:
-            raise SonicScrewdriverError("Y must be a one-column DataFrame or Series.")
+            raise PSToolkitError("Y must be a one-column DataFrame or Series.")
 
         if len(Y) != len(probabilities):
-            raise SonicScrewdriverError("The probabilities and Y must be the same size.")
+            raise PSToolkitError("The probabilities and Y must be the same size.")
 
         if Y.isnull().any().any():
-            raise SonicScrewdriverError("Y contains NaNs.")
+            raise PSToolkitError("Y contains NaNs.")
 
         if type(probabilities) != np.ndarray:
             probabilities = np.array(probabilities)
 
         if np.isnan(probabilities).any():
-            raise SonicScrewdriverError("The probabilities contains NaNs.")
+            raise PSToolkitError("The probabilities contains NaNs.")
 
         if not (probabilities >= 0).all() or not (probabilities <= 1).all():
-            raise SonicScrewdriverError("The probabilities must be between 0 and 1.")
+            raise PSToolkitError("The probabilities must be between 0 and 1.")
 
         true_probs = []
         false_probs = []
