@@ -8,3 +8,19 @@ git clone https://github.com/parsing-science/ps-toolkit.git
 cd ps-toolkit
 ```
 
+## Import the repo
+To use the package, you can add it to the requirements.txt of your repo
+
+Repo: git+ssh://git@github.com/parsing-science/ps-toolkit.git#egg=PS_Toolkit
+
+## To run unittests
+```sh
+cd ps-toolkit
+virtualenv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python -m unittest discover -cv
+```
+
+
+
