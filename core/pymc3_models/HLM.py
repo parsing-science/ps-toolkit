@@ -74,7 +74,7 @@ class HLM(BaseEstimator):
 
     def _inference(self, minibatch_tensors, minibatch_RVs, minibatches, num_samples):
         """
-        Runs variational ADVI in minibatch form and then samples from those results.
+        Runs minibatch variational ADVI and then sample from those results.
         """
         with self.cached_model:
             v_params = pm.variational.advi_minibatch(
@@ -105,8 +105,6 @@ class HLM(BaseEstimator):
         """
         self.num_cats = len(np.unique(cats))
         num_samples, self.num_pred = X.shape
-
-        #model_input, model_output, model_cats = self._create_shared_vars(X, y, cats)
 
         if self.cached_model is None:
             self.cached_model, o = self.create_model()
