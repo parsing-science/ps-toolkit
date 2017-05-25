@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.exceptions import NotFittedError
 from sklearn.metrics import roc_curve, auc
 
-from core.exc import PSToolkitError
+from ps_toolkit.exc import PSToolkitError
 
 
 class ROCCurveVisualizer(object):
