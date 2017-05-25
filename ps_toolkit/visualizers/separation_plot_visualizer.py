@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.exceptions import NotFittedError
 
-from core.exc import PSToolkitError
+from ps_toolkit.exc import PSToolkitError
 
 
 class SeparationPlotVisualizer(object):

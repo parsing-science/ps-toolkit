@@ -9,7 +9,7 @@ from sklearn.metrics import accuracy_score
 import theano
 import theano.tensor as T
 
-from core.exc import PSToolkitError
+from ps_toolkit.exc import PSToolkitError
 
 
 class HLM(BaseEstimator):

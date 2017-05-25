@@ -6,8 +6,8 @@ import numpy as np
 from pymc3 import summary
 from sklearn.model_selection import train_test_split
 
-from core.exc import PSToolkitError
-from core import HLM
+from ps_toolkit.exc import PSToolkitError
+from ps_toolkit import HLM
 
 
 class HLMTestCase(unittest.TestCase):
