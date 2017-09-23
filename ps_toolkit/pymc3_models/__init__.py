@@ -31,7 +31,7 @@ class BayesianModel(BaseEstimator):
         Sets theano shared variables for the PyMC3 model.
         """
         for key in shared_vars.keys():
-            self.shared_vars['key'].set_value(shared_vars[key])
+            self.shared_vars[key].set_value(shared_vars[key])
 
     def _inference(self, minibatch_tensors, minibatch_RVs, minibatches, num_samples):
         """
@@ -64,11 +64,57 @@ class BayesianModel(BaseEstimator):
     def score(self):
         pass
 
-    def save(self):
-        pass
+    def save(self, file_prefix, custom_params=None):
+        """
+        Saves the advi_trace, v_params, and extra param files with the given file_prefix.
 
-    def load(self):
-        pass
+        Parameters
+        ----------
+        file_prefix: str
+        path and prefix used to identify where to save trace and params for this model.
+        ex. given file_prefix = "path/to/file/"
+        This will attempt to save to "path/to/file/advi_trace.pickle" and "path/to/file/params.pickle"
+
+        custom_params: Dictionary of custom parameters to save. Defaults to None
+        """
+        fileObject = open(file_prefix + 'advi_trace.pickle', 'w')
+        joblib.dump(self.advi_trace, fileObject)
+        fileObject.close()
+
+        fileObject = open(file_prefix + 'v_params.pickle', 'w')
+        joblib.dump(self.v_params, fileObject)
+        fileObject.close()
+
+        if custom_params:
+            fileObject = open(file_prefix + 'params.pickle', 'w')
+            joblib.dump(custom_params, fileObject)
+            fileObject.close()
+
+    def load(self, file_prefix, load_custom_params=False):
+        """
+        Loads a saved version of the advi_trace, v_params, and extra param files with the given file_prefix.
+
+        Parameters
+        ----------
+        file_prefix: str
+        path and prefix used to identify where to load saved trace and params for this model.
+        ex. given file_prefix = "path/to/file/"
+        This will attempt to load "path/to/file/advi_trace.pickle" and "path/to/file/params.pickle"
+
+        load_custom_params: Boolean flag to indicate whether custom parameters should be loaded. Defaults to False.
+
+        Returns
+        ----------
+        custom_params: Dictionary of custom parameters
+        """
+        self.advi_trace = joblib.load(file_prefix + 'advi_trace.pickle')
+        self.v_params = joblib.load(file_prefix + 'v_params.pickle')
+
+        custom_params = None
+        if load_custom_params:
+            custom_params = joblib.load(file_prefix + 'params.pickle')
+
+        return custom_params
 
     @staticmethod
     def _create_minibatch(data, num_samples, size=100):

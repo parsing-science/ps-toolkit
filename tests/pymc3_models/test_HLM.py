@@ -100,12 +100,11 @@ class HLMSaveandLoadTestCase(HLMTestCase):
         print("")
         self.test_HLM.fit(self.X_train, self.cat_train, self.Y_train)
         probs1 = self.test_HLM.predict_proba(self.X_test, self.cat_test)
-        probs2 = self.test_HLM.predict_proba(self.X_test, self.cat_test)
-        self.test_HLM.save(self.test_dir)
+        self.test_HLM.save_HLM(self.test_dir)
 
         HLM2 = HLM()
 
-        HLM2.load(self.test_dir)
+        HLM2.load_HLM(self.test_dir)
 
         self.assertEqual(self.test_HLM.num_cats, HLM2.num_cats)
         self.assertEqual(self.test_HLM.num_pred, HLM2.num_pred)
@@ -114,6 +113,6 @@ class HLMSaveandLoadTestCase(HLMTestCase):
         for key in self.test_HLM.v_params.means.keys():
             np.testing.assert_equal(self.test_HLM.v_params.means[key], HLM2.v_params.means[key])
 
-        probs3 = HLM2.predict_proba(self.X_test, self.cat_test)
+        probs2 = HLM2.predict_proba(self.X_test, self.cat_test)
 
-        np.testing.assert_almost_equal(probs3, probs1, decimal=1)
+        np.testing.assert_almost_equal(probs2, probs1, decimal=1)

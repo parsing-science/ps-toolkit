@@ -36,11 +36,11 @@ class HLM(BayesianModel):
 
         with model:
             # Both alpha and beta are drawn from Normal distributions
-            mu_alpha = pm.Normal("mu_alpha", mu=0, sd=10)
-            sigma_alpha = pm.HalfNormal("sigma_alpha", sd=10)
+            mu_alpha = pm.Normal('mu_alpha', mu=0, sd=10)
+            sigma_alpha = pm.HalfNormal('sigma_alpha', sd=10)
 
-            mu_beta = pm.Normal("mu_beta", mu=0, sd=10)
-            sigma_beta = pm.HalfNormal("sigma_beta", sd=10)
+            mu_beta = pm.Normal('mu_beta', mu=0, sd=10)
+            sigma_beta = pm.HalfNormal('sigma_beta', sd=10)
 
             alpha = pm.Normal('alpha', mu=mu_alpha, sd=sigma_alpha, shape=(self.num_cats,))
             beta = pm.Normal('beta', mu=mu_beta, sd=sigma_beta, shape=(self.num_cats, self.num_pred))
@@ -103,14 +103,14 @@ class HLM(BayesianModel):
         """
 
         if self.advi_trace is None:
-            raise PSToolkitError("Run fit on the model before predict.")
+            raise PSToolkitError('Run fit on the model before predict.')
 
         num_samples = X.shape[0]
 
         if self.cached_model is None:
             self.cached_model, o = self.create_model()
 
-        self._set_shared_vars({'model_input': X, 'model_outpu': np.zeros(num_samples), 'model_cats': cats})
+        self._set_shared_vars({'model_input': X, 'model_output': np.zeros(num_samples), 'model_cats': cats})
 
         ppc = pm.sample_ppc(self.advi_trace, model=self.cached_model, samples=2000)
 
@@ -146,7 +146,7 @@ class HLM(BayesianModel):
         """
         return accuracy_score(y, self.predict(X, cats))
 
-    def save(self, file_prefix):
+    def save_HLM(self, file_prefix):
         """
         Saves the advi_trace, v_params, and param files with the given file_prefix.
 
@@ -157,35 +157,14 @@ class HLM(BayesianModel):
         ex. given file_prefix = "path/to/file/"
         This will attempt to save to "path/to/file/advi_trace.pickle" and "path/to/file/params.pickle"
         """
-        fileObject = open(file_prefix + "advi_trace.pickle", 'w')
-        joblib.dump(self.advi_trace, fileObject)
-        fileObject.close()
 
-        fileObject = open(file_prefix + "v_params.pickle", 'w')
-        joblib.dump(self.v_params, fileObject)
-        fileObject.close()
+        params = {'num_cats': self.num_cats, 'num_pred': self.num_pred}
 
-        fileObject = open(file_prefix + "params.pickle", 'w')
-        joblib.dump(
-            {"num_cats": self.num_cats, "num_pred": self.num_pred},
-            fileObject
-        )
-        fileObject.close()
+        self.save(file_prefix, params)
 
-    def load(self, file_prefix):
-        """
-        Loads a saved version of the advi_trace, v_params, and param files with the given file_prefix.
+    def load_HLM(self, file_prefix):
 
-        Parameters
-        ----------
-        file_prefix: str
-        path and prefix used to identify where to load saved trace and params for this model.
-        ex. given file_prefix = "path/to/file/"
-        This will attempt to load "path/to/file/advi_trace.pickle" and "path/to/file/params.pickle"
-        """
-        self.advi_trace = joblib.load(file_prefix + "advi_trace.pickle")
-        self.v_params = joblib.load(file_prefix + "v_params.pickle")
+        params = self.load(file_prefix, load_custom_params=True)
 
-        params = joblib.load(file_prefix + "params.pickle")
-        self.num_cats = params["num_cats"]
-        self.num_pred = params["num_pred"]
+        self.num_cats = params['num_cats']
+        self.num_pred = params['num_pred']
