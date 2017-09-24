@@ -1,7 +1,5 @@
-import joblib
 import numpy as np
 import pymc3 as pm
-from sklearn.metrics import accuracy_score
 import theano
 import theano.tensor as T
 
@@ -55,7 +53,7 @@ class HLM(BayesianModel):
 
         return model, o
 
-    def fit(self, X, cats, y):
+    def fit(self, X, y, cats):
         """
         Train the HLM model
 
@@ -63,9 +61,9 @@ class HLM(BayesianModel):
         ----------
         X : numpy array, shape [n_samples, n_features]
 
-        cats: numpy array, shape [n_samples, ]
-
         y : numpy array, shape [n_samples, ]
+
+        cats: numpy array, shape [n_samples, ]
         """
         self.num_cats = len(np.unique(cats))
         num_samples, self.num_pred = X.shape
@@ -115,36 +113,6 @@ class HLM(BayesianModel):
         ppc = pm.sample_ppc(self.advi_trace, model=self.cached_model, samples=2000)
 
         return ppc['o'].mean(axis=0)
-
-    def predict(self, X, cats):
-        """
-        Predicts labels of new data with a trained HLM
-
-        Parameters
-        ----------
-        X : numpy array, shape [n_samples, n_features]
-
-        cats: numpy array, shape [n_samples, ]
-        """
-        ppc_mean = self.predict_proba(X, cats)
-
-        pred = ppc_mean > 0.5
-
-        return pred
-
-    def score(self, X, cats, y):
-        """
-        Scores new data with a trained model.
-
-        Parameters
-        ----------
-        X : numpy array, shape [n_samples, n_features]
-
-        cats: numpy array, shape [n_samples, ]
-
-        y : numpy array, shape [n_samples, ]
-        """
-        return accuracy_score(y, self.predict(X, cats))
 
     def save_HLM(self, file_prefix):
         """

@@ -53,7 +53,7 @@ class HLMFitTestCase(HLMTestCase):
     def test_fit_returns_correct_model(self):
         # Note: print is here so PyMC3 output won't overwrite the test name
         print("")
-        self.test_HLM.fit(self.X_train, self.cat_train, self.Y_train)
+        self.test_HLM.fit(self.X_train, self.Y_train, self.cat_train)
 
         self.assertEqual(self.num_cats, self.test_HLM.num_cats)
         self.assertEqual(self.num_pred, self.test_HLM.num_pred)
@@ -65,7 +65,7 @@ class HLMFitTestCase(HLMTestCase):
 class HLMPredictProbaTestCase(HLMTestCase):
     def test_predict_proba_returns_probabilities(self):
         print("")
-        self.test_HLM.fit(self.X_train, self.cat_train, self.Y_train)
+        self.test_HLM.fit(self.X_train, self.Y_train, self.cat_train)
         probs = self.test_HLM.predict_proba(self.X_test, self.cat_test)
         self.assertEqual(probs.shape, self.Y_test.shape)
 
@@ -81,7 +81,7 @@ class HLMPredictProbaTestCase(HLMTestCase):
 class HLMPredictTestCase(HLMTestCase):
     def test_predict_returns_predictions(self):
         print("")
-        self.test_HLM.fit(self.X_train, self.cat_train, self.Y_train)
+        self.test_HLM.fit(self.X_train, self.Y_train, self.cat_train)
         preds = self.test_HLM.predict(self.X_test, self.cat_test)
         self.assertEqual(preds.shape, self.Y_test.shape)
 
@@ -89,8 +89,8 @@ class HLMPredictTestCase(HLMTestCase):
 class HLMScoreTestCase(HLMTestCase):
     def test_score_scores(self):
         print("")
-        self.test_HLM.fit(self.X_train, self.cat_train, self.Y_train)
-        score = self.test_HLM.score(self.X_test, self.cat_test, self.Y_test)
+        self.test_HLM.fit(self.X_train, self.Y_train, self.cat_train)
+        score = self.test_HLM.score(self.X_test, self.Y_test, self.cat_test)
         naive_score = np.mean(self.Y_test)
         self.assertGreaterEqual(score, naive_score)
 
@@ -98,7 +98,7 @@ class HLMScoreTestCase(HLMTestCase):
 class HLMSaveandLoadTestCase(HLMTestCase):
     def test_save_and_load_work_correctly(self):
         print("")
-        self.test_HLM.fit(self.X_train, self.cat_train, self.Y_train)
+        self.test_HLM.fit(self.X_train, self.Y_train, self.cat_train)
         probs1 = self.test_HLM.predict_proba(self.X_test, self.cat_test)
         self.test_HLM.save_HLM(self.test_dir)
 

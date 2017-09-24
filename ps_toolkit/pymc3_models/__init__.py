@@ -3,11 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pymc3 as pm
 import seaborn as sns
-from six.moves import zip
 from sklearn.base import BaseEstimator
 from sklearn.metrics import accuracy_score
-import theano
-import theano.tensor as T
 
 from ps_toolkit.exc import PSToolkitError
 
@@ -58,11 +55,39 @@ class BayesianModel(BaseEstimator):
     def predict_proba(self):
         pass
 
-    def predict(self):
-        pass
+    def predict(self, X, *args):
+        """
+        Predicts labels of new data with a trained model
 
-    def score(self):
-        pass
+        Parameters
+        ----------
+        X : numpy array, shape [n_samples, n_features]
+
+        args: tuple of optional arguments for the model
+        """
+        if args:
+            ppc_mean = self.predict_proba(X, *args)
+        else:
+            ppc_mean = self.predict_proba(X)
+
+        pred = ppc_mean > 0.5
+
+        return pred
+
+    def score(self, X, y, *args):
+        """
+        Scores new data with a trained model.
+
+        Parameters
+        ----------
+        X : numpy array, shape [n_samples, n_features]
+
+        y : numpy array, shape [n_samples, ]
+
+        args: tuple of optional arguments for the model
+        """
+
+        return accuracy_score(y, self.predict(X, *args))
 
     def save(self, file_prefix, custom_params=None):
         """
@@ -116,16 +141,6 @@ class BayesianModel(BaseEstimator):
 
         return custom_params
 
-    @staticmethod
-    def _create_minibatch(data, num_samples, size=100):
-        """
-        Generator that returns mini-batches in each iteration
-        """
-        while True:
-            # Return random data samples of set size each iteration
-            ixs = np.random.randint(num_samples, size=size)
-            yield [tensor[ixs] for tensor in data]
-
     def plot_elbo(self):
         """
         Plot the ELBO values after running ADVI minibatch.
@@ -135,3 +150,13 @@ class BayesianModel(BaseEstimator):
         plt.ylabel('ELBO')
         plt.xlabel('iteration')
         sns.despine()
+
+    @staticmethod
+    def _create_minibatch(data, num_samples, size=100):
+        """
+        Generator that returns mini-batches in each iteration
+        """
+        while True:
+            # Return random data samples of set size each iteration
+            ixs = np.random.randint(num_samples, size=size)
+            yield [tensor[ixs] for tensor in data]
