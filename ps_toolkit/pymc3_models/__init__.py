@@ -53,7 +53,7 @@ class BayesianModel(BaseEstimator):
         raise NotImplementedError
 
     def predict_proba(self):
-        pass
+        raise NotImplementedError
 
     def predict(self, X, *args):
         """
