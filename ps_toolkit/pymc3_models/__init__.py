@@ -6,8 +6,6 @@ import seaborn as sns
 from sklearn.base import BaseEstimator
 from sklearn.metrics import accuracy_score
 
-from ps_toolkit.exc import PSToolkitError
-
 
 class BayesianModel(BaseEstimator):
     """
