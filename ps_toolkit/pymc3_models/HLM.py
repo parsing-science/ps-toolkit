@@ -28,12 +28,15 @@ class HLM(BayesianModel):
 
         model_cats = theano.shared(np.zeros(1, dtype='int'))
 
-        self.shared_vars = {'model_input': model_input, 'model_output': model_output, 'model_cats': model_cats}
+        self.shared_vars = {
+            'model_input': model_input,
+            'model_output': model_output,
+            'model_cats': model_cats
+        }
 
         model = pm.Model()
 
         with model:
-            # Both alpha and beta are drawn from Normal distributions
             mu_alpha = pm.Normal('mu_alpha', mu=0, sd=10)
             sigma_alpha = pm.HalfNormal('sigma_alpha', sd=10)
 
@@ -99,7 +102,7 @@ class HLM(BayesianModel):
 
         cats: numpy array, shape [n_samples, ]
 
-        return_std: Boolean flag of whether to return standard deviations with mean probabilites. Defaults to False.
+        return_std: Boolean flag of whether to return standard deviations with mean probabilities. Defaults to False.
         """
 
         if self.advi_trace is None:
@@ -120,23 +123,11 @@ class HLM(BayesianModel):
             return ppc['o'].mean(axis=0)
 
     def save(self, file_prefix):
-        """
-        Saves the advi_trace, v_params, and param files with the given file_prefix.
-
-        Parameters
-        ----------
-        file_prefix: str
-        path and prefix used to identify where to save trace and params for this model.
-        ex. given file_prefix = "path/to/file/"
-        This will attempt to save to "path/to/file/advi_trace.pickle" and "path/to/file/params.pickle"
-        """
-
         params = {'num_cats': self.num_cats, 'num_pred': self.num_pred}
 
         super(HLM, self).save(file_prefix, params)
 
     def load(self, file_prefix):
-
         params = super(HLM, self).load(file_prefix, load_custom_params=True)
 
         self.num_cats = params['num_cats']

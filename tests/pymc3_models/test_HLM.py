@@ -69,6 +69,13 @@ class HLMPredictProbaTestCase(HLMTestCase):
         probs = self.test_HLM.predict_proba(self.X_test, self.cat_test)
         self.assertEqual(probs.shape, self.Y_test.shape)
 
+    def test_predict_proba_returns_probabilities_and_std(self):
+        print("")
+        self.test_HLM.fit(self.X_train, self.Y_train, self.cat_train)
+        probs, stds = self.test_HLM.predict_proba(self.X_test, self.cat_test, return_std=True)
+        self.assertEqual(probs.shape, self.Y_test.shape)
+        self.assertEqual(stds.shape, self.Y_test.shape)
+
     def test_predict_proba_raises_error_if_not_fit(self):
         with self.assertRaises(PSToolkitError) as no_fit_error:
             test_HLM = HLM()

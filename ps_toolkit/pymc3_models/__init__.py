@@ -12,10 +12,10 @@ class BayesianModel(BaseEstimator):
     Bayesian model base class
     """
     def __init__(self):
-        self.cached_model = None
-        self.shared_vars = None
-        self.num_pred = None
         self.advi_trace = None
+        self.cached_model = None
+        self.num_pred = None
+        self.shared_vars = None
         self.v_params = None
 
     def create_model(self):
@@ -89,14 +89,13 @@ class BayesianModel(BaseEstimator):
 
     def save(self, file_prefix, custom_params=None):
         """
-        Saves the advi_trace, v_params, and extra param files with the given file_prefix.
+        Saves the advi_trace, v_params, and custom params to files with the given file_prefix.
 
         Parameters
         ----------
-        file_prefix: str
-        path and prefix used to identify where to save trace and params for this model.
-        ex. given file_prefix = "path/to/file/"
-        This will attempt to save to "path/to/file/advi_trace.pickle" and "path/to/file/params.pickle"
+        file_prefix: str, path and prefix used to identify where to save trace and params for this model.
+        Ex: given file_prefix = "path/to/file/"
+        This will attempt to save to "path/to/file/advi_trace.pickle" and "path/to/file/v_params.pickle"
 
         custom_params: Dictionary of custom parameters to save. Defaults to None
         """
@@ -115,14 +114,13 @@ class BayesianModel(BaseEstimator):
 
     def load(self, file_prefix, load_custom_params=False):
         """
-        Loads a saved version of the advi_trace, v_params, and extra param files with the given file_prefix.
+        Loads a saved version of the advi_trace, v_params, and custom param files with the given file_prefix.
 
         Parameters
         ----------
-        file_prefix: str
-        path and prefix used to identify where to load saved trace and params for this model.
-        ex. given file_prefix = "path/to/file/"
-        This will attempt to load "path/to/file/advi_trace.pickle" and "path/to/file/params.pickle"
+        file_prefix: str, path and prefix used to identify where to load saved trace and params for this model.
+        Ex: given file_prefix = "path/to/file/"
+        This will attempt to load "path/to/file/advi_trace.pickle" and "path/to/file/v_params.pickle"
 
         load_custom_params: Boolean flag to indicate whether custom parameters should be loaded. Defaults to False.
 
