@@ -89,7 +89,7 @@ class HLM(BayesianModel):
 
         return self
 
-    def predict_proba(self, X, cats):
+    def predict_proba(self, X, cats, return_std=False):
         """
         Predicts probabilities of new data with a trained HLM
 
@@ -98,6 +98,8 @@ class HLM(BayesianModel):
         X : numpy array, shape [n_samples, n_features]
 
         cats: numpy array, shape [n_samples, ]
+
+        return_std: Boolean flag of whether to return standard deviations with mean probabilites. Defaults to False.
         """
 
         if self.advi_trace is None:
@@ -112,9 +114,12 @@ class HLM(BayesianModel):
 
         ppc = pm.sample_ppc(self.advi_trace, model=self.cached_model, samples=2000)
 
-        return ppc['o'].mean(axis=0)
+        if return_std:
+            return ppc['o'].mean(axis=0), ppc['o'].std(axis=0)
+        else:
+            return ppc['o'].mean(axis=0)
 
-    def save_HLM(self, file_prefix):
+    def save(self, file_prefix):
         """
         Saves the advi_trace, v_params, and param files with the given file_prefix.
 
@@ -128,11 +133,11 @@ class HLM(BayesianModel):
 
         params = {'num_cats': self.num_cats, 'num_pred': self.num_pred}
 
-        self.save(file_prefix, params)
+        super(HLM, self).save(file_prefix, params)
 
-    def load_HLM(self, file_prefix):
+    def load(self, file_prefix):
 
-        params = self.load(file_prefix, load_custom_params=True)
+        params = super(HLM, self).load(file_prefix, load_custom_params=True)
 
         self.num_cats = params['num_cats']
         self.num_pred = params['num_pred']

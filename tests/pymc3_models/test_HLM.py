@@ -100,11 +100,11 @@ class HLMSaveandLoadTestCase(HLMTestCase):
         print("")
         self.test_HLM.fit(self.X_train, self.Y_train, self.cat_train)
         probs1 = self.test_HLM.predict_proba(self.X_test, self.cat_test)
-        self.test_HLM.save_HLM(self.test_dir)
+        self.test_HLM.save(self.test_dir)
 
         HLM2 = HLM()
 
-        HLM2.load_HLM(self.test_dir)
+        HLM2.load(self.test_dir)
 
         self.assertEqual(self.test_HLM.num_cats, HLM2.num_cats)
         self.assertEqual(self.test_HLM.num_pred, HLM2.num_pred)
