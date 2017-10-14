@@ -1,6 +1,5 @@
 import unittest
 
-from ps_toolkit.exc import PSToolkitError
 from ps_toolkit.pymc3_models import BayesianModel
 
 
@@ -14,3 +13,8 @@ class BayesianModelTestCase(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             BM = BayesianModel()
             BM.fit()
+
+    def test_predict_proba_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            BM = BayesianModel()
+            BM.predict_proba()
