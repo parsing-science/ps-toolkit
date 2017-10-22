@@ -1,6 +1,5 @@
 import joblib
 import matplotlib.pyplot as plt
-import numpy as np
 import pymc3 as pm
 import seaborn as sns
 from sklearn.base import BaseEstimator
@@ -12,11 +11,11 @@ class BayesianModel(BaseEstimator):
     Bayesian model base class
     """
     def __init__(self):
+        self.advi_hist = None
         self.advi_trace = None
         self.cached_model = None
         self.num_pred = None
         self.shared_vars = None
-        self.v_params = None
 
     def create_model(self):
         raise NotImplementedError
@@ -28,24 +27,22 @@ class BayesianModel(BaseEstimator):
         for key in shared_vars.keys():
             self.shared_vars[key].set_value(shared_vars[key])
 
-    def _inference(self, minibatch_tensors, minibatch_RVs, minibatches, num_samples):
+    def _inference(self, minibatches):
         """
         Runs minibatch variational ADVI and then sample from those results.
         """
         with self.cached_model:
-            v_params = pm.variational.advi_minibatch(
-                n=50000,
-                minibatch_tensors=minibatch_tensors,
-                minibatch_RVs=minibatch_RVs,
-                minibatches=minibatches,
-                total_size=int(num_samples),
-                learning_rate=1e-2,
-                epsilon=1.0
+            advi = pm.ADVI()
+            approx = pm.fit(
+                n=200000,
+                method=advi,
+                more_replacements=minibatches,
+                callbacks=[pm.callbacks.CheckParametersConvergence()]
             )
 
-            advi_trace = pm.variational.sample_vp(v_params, draws=7500)
+        self.advi_trace = approx.sample(draws=10000)
 
-        return v_params, advi_trace
+        self.advi_hist = advi.hist
 
     def fit(self):
         raise NotImplementedError
@@ -89,22 +86,18 @@ class BayesianModel(BaseEstimator):
 
     def save(self, file_prefix, custom_params=None):
         """
-        Saves the advi_trace, v_params, and custom params to files with the given file_prefix.
+        Saves the advi_trace and custom params to files with the given file_prefix.
 
         Parameters
         ----------
-        file_prefix: str, path and prefix used to identify where to save trace and params for this model.
+        file_prefix: str, path and prefix used to identify where to save the trace for this model.
         Ex: given file_prefix = "path/to/file/"
-        This will attempt to save to "path/to/file/advi_trace.pickle" and "path/to/file/v_params.pickle"
+        This will attempt to save to "path/to/file/advi_trace.pickle"
 
         custom_params: Dictionary of custom parameters to save. Defaults to None
         """
         fileObject = open(file_prefix + 'advi_trace.pickle', 'w')
         joblib.dump(self.advi_trace, fileObject)
-        fileObject.close()
-
-        fileObject = open(file_prefix + 'v_params.pickle', 'w')
-        joblib.dump(self.v_params, fileObject)
         fileObject.close()
 
         if custom_params:
@@ -118,9 +111,9 @@ class BayesianModel(BaseEstimator):
 
         Parameters
         ----------
-        file_prefix: str, path and prefix used to identify where to load saved trace and params for this model.
+        file_prefix: str, path and prefix used to identify where to load the saved trace for this model.
         Ex: given file_prefix = "path/to/file/"
-        This will attempt to load "path/to/file/advi_trace.pickle" and "path/to/file/v_params.pickle"
+        This will attempt to load "path/to/file/advi_trace.pickle"
 
         load_custom_params: Boolean flag to indicate whether custom parameters should be loaded. Defaults to False.
 
@@ -129,7 +122,6 @@ class BayesianModel(BaseEstimator):
         custom_params: Dictionary of custom parameters
         """
         self.advi_trace = joblib.load(file_prefix + 'advi_trace.pickle')
-        self.v_params = joblib.load(file_prefix + 'v_params.pickle')
 
         custom_params = None
         if load_custom_params:
@@ -142,17 +134,7 @@ class BayesianModel(BaseEstimator):
         Plot the ELBO values after running ADVI minibatch.
         """
         sns.set_style("white")
-        plt.plot(self.v_params.elbo_vals)
+        plt.plot(-self.advi_hist)
         plt.ylabel('ELBO')
         plt.xlabel('iteration')
         sns.despine()
-
-    @staticmethod
-    def _create_minibatch(data, num_samples, size=100):
-        """
-        Generator that returns mini-batches in each iteration
-        """
-        while True:
-            # Return random data samples of set size each iteration
-            ixs = np.random.randint(num_samples, size=size)
-            yield [tensor[ixs] for tensor in data]

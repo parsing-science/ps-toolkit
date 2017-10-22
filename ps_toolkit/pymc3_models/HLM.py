@@ -37,11 +37,11 @@ class HLM(BayesianModel):
         model = pm.Model()
 
         with model:
-            mu_alpha = pm.Normal('mu_alpha', mu=0, sd=10)
-            sigma_alpha = pm.HalfNormal('sigma_alpha', sd=10)
+            mu_alpha = pm.Normal('mu_alpha', mu=0, sd=100)
+            sigma_alpha = pm.HalfNormal('sigma_alpha', sd=100)
 
-            mu_beta = pm.Normal('mu_beta', mu=0, sd=10)
-            sigma_beta = pm.HalfNormal('sigma_beta', sd=10)
+            mu_beta = pm.Normal('mu_beta', mu=0, sd=100)
+            sigma_beta = pm.HalfNormal('sigma_beta', sd=100)
 
             alpha = pm.Normal('alpha', mu=mu_alpha, sd=sigma_alpha, shape=(self.num_cats,))
             beta = pm.Normal('beta', mu=mu_beta, sd=sigma_beta, shape=(self.num_cats, self.num_pred))
@@ -74,21 +74,15 @@ class HLM(BayesianModel):
         if self.cached_model is None:
             self.cached_model, o = self.create_model()
 
-        minibatch_tensors = [
-            self.shared_vars['model_input'],
-            self.shared_vars['model_output'],
-            self.shared_vars['model_cats']
-        ]
-        minibatch_RVs = [o]
+        with self.cached_model:
 
-        minibatches = self._create_minibatch([X, y, cats], num_samples)
+            minibatches = {
+                self.shared_vars['model_input']: pm.Minibatch(X, batch_size=1000),
+                self.shared_vars['model_output']: pm.Minibatch(y, batch_size=1000),
+                self.shared_vars['model_cats']: pm.Minibatch(cats, batch_size=1000)
+            }
 
-        self.v_params, self.advi_trace = self._inference(
-            minibatch_tensors,
-            minibatch_RVs,
-            minibatches,
-            num_samples
-        )
+            self._inference(minibatches)
 
         return self
 
