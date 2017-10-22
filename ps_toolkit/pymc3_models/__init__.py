@@ -34,7 +34,7 @@ class BayesianModel(BaseEstimator):
         with self.cached_model:
             advi = pm.ADVI()
             approx = pm.fit(
-                n=200000,
+                n=400000,
                 method=advi,
                 more_replacements=minibatches,
                 callbacks=[pm.callbacks.CheckParametersConvergence()]

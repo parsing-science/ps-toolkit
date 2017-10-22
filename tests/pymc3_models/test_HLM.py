@@ -58,10 +58,19 @@ class HLMFitTestCase(HLMTestCase):
         self.assertEqual(self.num_cats, self.test_HLM.num_cats)
         self.assertEqual(self.num_pred, self.test_HLM.num_pred)
 
-        # Figure out better test without v_params!!
-        #TODO: Think about whether this is the right testing tolerance
+        #TODO: Figure out best way to test
         #np.testing.assert_almost_equal(self.alphas, self.test_HLM.advi_trace['alphas'].mean(), decimal=1)
         #np.testing.assert_almost_equal(self.betas, self.test_HLM.advi_trace['betas'].mean(), decimal=1)
+
+        # For now, just check that the estimated parameters have the correct signs
+        np.testing.assert_equal(
+            np.sign(self.alphas),
+            np.sign(self.test_HLM.advi_trace['alpha'].mean(axis=0))
+        )
+        np.testing.assert_equal(
+            np.sign(self.betas),
+            np.sign(self.test_HLM.advi_trace['beta'].mean(axis=0))
+        )
 
 
 class HLMPredictProbaTestCase(HLMTestCase):
