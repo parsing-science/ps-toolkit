@@ -56,7 +56,7 @@ class HLM(BayesianModel):
 
         return model, o
 
-    def fit(self, X, y, cats):
+    def fit(self, X, y, cats, n=200000, batch_size=100):
         """
         Train the HLM model
 
@@ -67,6 +67,10 @@ class HLM(BayesianModel):
         y : numpy array, shape [n_samples, ]
 
         cats: numpy array, shape [n_samples, ]
+
+        n: number of iterations for ADVI fit, defaults to 200000
+
+        batch_size: number of samples to include in each minibatch for ADVI, defaults to 100
         """
         self.num_cats = len(np.unique(cats))
         num_samples, self.num_pred = X.shape
@@ -77,12 +81,12 @@ class HLM(BayesianModel):
         with self.cached_model:
 
             minibatches = {
-                self.shared_vars['model_input']: pm.Minibatch(X, batch_size=1000),
-                self.shared_vars['model_output']: pm.Minibatch(y, batch_size=1000),
-                self.shared_vars['model_cats']: pm.Minibatch(cats, batch_size=1000)
+                self.shared_vars['model_input']: pm.Minibatch(X, batch_size=batch_size),
+                self.shared_vars['model_output']: pm.Minibatch(y, batch_size=batch_size),
+                self.shared_vars['model_cats']: pm.Minibatch(cats, batch_size=batch_size)
             }
 
-            self._inference(minibatches)
+            self._inference(minibatches, n)
 
         return self
 

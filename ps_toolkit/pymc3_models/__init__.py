@@ -27,14 +27,14 @@ class BayesianModel(BaseEstimator):
         for key in shared_vars.keys():
             self.shared_vars[key].set_value(shared_vars[key])
 
-    def _inference(self, minibatches):
+    def _inference(self, minibatches, n=200000):
         """
         Runs minibatch variational ADVI and then sample from those results.
         """
         with self.cached_model:
             advi = pm.ADVI()
             approx = pm.fit(
-                n=400000,
+                n=n,
                 method=advi,
                 more_replacements=minibatches,
                 callbacks=[pm.callbacks.CheckParametersConvergence()]
