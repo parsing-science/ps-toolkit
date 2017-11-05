@@ -30,6 +30,12 @@ class BayesianModel(BaseEstimator):
     def _inference(self, minibatches, n=200000):
         """
         Runs minibatch variational ADVI and then sample from those results.
+
+        Parameters
+        ----------
+        minibatches: minibatches for ADVI
+
+        n: number of iterations for ADVI fit, defaults to 200000
         """
         with self.cached_model:
             advi = pm.ADVI()
