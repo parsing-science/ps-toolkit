@@ -20,7 +20,7 @@ class HLM(BayesianModel):
         """
         Creates and returns the PyMC3 model.
 
-        Returns the model and the output variable. The latter is for use in ADVI minibatch.
+        Returns the model.
         """
         model_input = theano.shared(np.zeros([1, self.num_pred]))
 
@@ -54,7 +54,7 @@ class HLM(BayesianModel):
 
             o = pm.Bernoulli('o', p, observed=model_output)
 
-        return model, o
+        return model
 
     def fit(self, X, y, cats, n=200000, batch_size=100):
         """
@@ -76,7 +76,7 @@ class HLM(BayesianModel):
         num_samples, self.num_pred = X.shape
 
         if self.cached_model is None:
-            self.cached_model, o = self.create_model()
+            self.cached_model = self.create_model()
 
         with self.cached_model:
 
@@ -109,7 +109,7 @@ class HLM(BayesianModel):
         num_samples = X.shape[0]
 
         if self.cached_model is None:
-            self.cached_model, o = self.create_model()
+            self.cached_model = self.create_model()
 
         self._set_shared_vars({'model_input': X, 'model_output': np.zeros(num_samples), 'model_cats': cats})
 
