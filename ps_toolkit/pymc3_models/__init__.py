@@ -102,12 +102,12 @@ class BayesianModel(BaseEstimator):
 
         custom_params: Dictionary of custom parameters to save. Defaults to None
         """
-        fileObject = open(file_prefix + 'advi_trace.pickle', 'w')
+        fileObject = open(file_prefix + 'advi_trace.pickle', 'wb')
         joblib.dump(self.advi_trace, fileObject)
         fileObject.close()
 
         if custom_params:
-            fileObject = open(file_prefix + 'params.pickle', 'w')
+            fileObject = open(file_prefix + 'params.pickle', 'wb')
             joblib.dump(custom_params, fileObject)
             fileObject.close()
 
