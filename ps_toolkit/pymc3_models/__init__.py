@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import pymc3 as pm
 import seaborn as sns
 from sklearn.base import BaseEstimator
-from sklearn.metrics import accuracy_score
 
 
 class BayesianModel(BaseEstimator):
@@ -56,39 +55,11 @@ class BayesianModel(BaseEstimator):
     def predict_proba(self):
         raise NotImplementedError
 
-    def predict(self, X, *args):
-        """
-        Predicts labels of new data with a trained model
+    def predict(self):
+        raise NotImplementedError
 
-        Parameters
-        ----------
-        X : numpy array, shape [n_samples, n_features]
-
-        args: tuple of optional arguments for the model
-        """
-        if args:
-            ppc_mean = self.predict_proba(X, *args)
-        else:
-            ppc_mean = self.predict_proba(X)
-
-        pred = ppc_mean > 0.5
-
-        return pred
-
-    def score(self, X, y, *args):
-        """
-        Scores new data with a trained model.
-
-        Parameters
-        ----------
-        X : numpy array, shape [n_samples, n_features]
-
-        y : numpy array, shape [n_samples, ]
-
-        args: tuple of optional arguments for the model
-        """
-
-        return accuracy_score(y, self.predict(X, *args))
+    def score(self):
+        raise NotImplementedError
 
     def save(self, file_prefix, custom_params=None):
         """

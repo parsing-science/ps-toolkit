@@ -7,10 +7,10 @@ from pymc3 import summary
 from sklearn.model_selection import train_test_split
 
 from ps_toolkit.exc import PSToolkitError
-from ps_toolkit import HLM
+from ps_toolkit import HLR
 
 
-class HLMTestCase(unittest.TestCase):
+class HLRTestCase(unittest.TestCase):
     def setUp(self):
         def numpy_invlogit(x):
             return 1 / (1 + np.exp(-x))
@@ -41,7 +41,7 @@ class HLMTestCase(unittest.TestCase):
             X, cats, Y, test_size=0.4
         )
 
-        self.test_HLM = HLM()
+        self.test_HLR = HLR()
 
         self.test_dir = tempfile.mkdtemp()
 
@@ -49,85 +49,85 @@ class HLMTestCase(unittest.TestCase):
         shutil.rmtree(self.test_dir)
 
 
-class HLMFitTestCase(HLMTestCase):
+class HLRFitTestCase(HLRTestCase):
     def test_fit_returns_correct_model(self):
         # Note: print is here so PyMC3 output won't overwrite the test name
         print("")
-        self.test_HLM.fit(self.X_train, self.Y_train, self.cat_train)
+        self.test_HLR.fit(self.X_train, self.Y_train, self.cat_train)
 
-        self.assertEqual(self.num_cats, self.test_HLM.num_cats)
-        self.assertEqual(self.num_pred, self.test_HLM.num_pred)
+        self.assertEqual(self.num_cats, self.test_HLR.num_cats)
+        self.assertEqual(self.num_pred, self.test_HLR.num_pred)
 
         #TODO: Figure out best way to test
-        #np.testing.assert_almost_equal(self.alphas, self.test_HLM.advi_trace['alphas'].mean(), decimal=1)
-        #np.testing.assert_almost_equal(self.betas, self.test_HLM.advi_trace['betas'].mean(), decimal=1)
+        #np.testing.assert_almost_equal(self.alphas, self.test_HLR.advi_trace['alphas'].mean(), decimal=1)
+        #np.testing.assert_almost_equal(self.betas, self.test_HLR.advi_trace['betas'].mean(), decimal=1)
 
         # For now, just check that the estimated parameters have the correct signs
         np.testing.assert_equal(
             np.sign(self.alphas),
-            np.sign(self.test_HLM.advi_trace['alpha'].mean(axis=0))
+            np.sign(self.test_HLR.advi_trace['alpha'].mean(axis=0))
         )
         np.testing.assert_equal(
             np.sign(self.betas),
-            np.sign(self.test_HLM.advi_trace['beta'].mean(axis=0))
+            np.sign(self.test_HLR.advi_trace['beta'].mean(axis=0))
         )
 
 
-class HLMPredictProbaTestCase(HLMTestCase):
+class HLRPredictProbaTestCase(HLRTestCase):
     def test_predict_proba_returns_probabilities(self):
         print("")
-        self.test_HLM.fit(self.X_train, self.Y_train, self.cat_train)
-        probs = self.test_HLM.predict_proba(self.X_test, self.cat_test)
+        self.test_HLR.fit(self.X_train, self.Y_train, self.cat_train)
+        probs = self.test_HLR.predict_proba(self.X_test, self.cat_test)
         self.assertEqual(probs.shape, self.Y_test.shape)
 
     def test_predict_proba_returns_probabilities_and_std(self):
         print("")
-        self.test_HLM.fit(self.X_train, self.Y_train, self.cat_train)
-        probs, stds = self.test_HLM.predict_proba(self.X_test, self.cat_test, return_std=True)
+        self.test_HLR.fit(self.X_train, self.Y_train, self.cat_train)
+        probs, stds = self.test_HLR.predict_proba(self.X_test, self.cat_test, return_std=True)
         self.assertEqual(probs.shape, self.Y_test.shape)
         self.assertEqual(stds.shape, self.Y_test.shape)
 
     def test_predict_proba_raises_error_if_not_fit(self):
         with self.assertRaises(PSToolkitError) as no_fit_error:
-            test_HLM = HLM()
-            test_HLM.predict_proba(self.X_train, self.cat_train)
+            test_HLR = HLR()
+            test_HLR.predict_proba(self.X_train, self.cat_train)
 
         expected = "Run fit on the model before predict."
         self.assertEqual(str(no_fit_error.exception), expected)
 
 
-class HLMPredictTestCase(HLMTestCase):
+class HLRPredictTestCase(HLRTestCase):
     def test_predict_returns_predictions(self):
         print("")
-        self.test_HLM.fit(self.X_train, self.Y_train, self.cat_train)
-        preds = self.test_HLM.predict(self.X_test, self.cat_test)
+        self.test_HLR.fit(self.X_train, self.Y_train, self.cat_train)
+        preds = self.test_HLR.predict(self.X_test, self.cat_test)
         self.assertEqual(preds.shape, self.Y_test.shape)
 
 
-class HLMScoreTestCase(HLMTestCase):
+class HLRScoreTestCase(HLRTestCase):
     def test_score_scores(self):
         print("")
-        self.test_HLM.fit(self.X_train, self.Y_train, self.cat_train)
-        score = self.test_HLM.score(self.X_test, self.Y_test, self.cat_test)
+        self.test_HLR.fit(self.X_train, self.Y_train, self.cat_train)
+        score = self.test_HLR.score(self.X_test, self.Y_test, self.cat_test)
         naive_score = np.mean(self.Y_test)
         self.assertGreaterEqual(score, naive_score)
 
 
-class HLMSaveandLoadTestCase(HLMTestCase):
+class HLRSaveandLoadTestCase(HLRTestCase):
     def test_save_and_load_work_correctly(self):
         print("")
-        self.test_HLM.fit(self.X_train, self.Y_train, self.cat_train)
-        probs1 = self.test_HLM.predict_proba(self.X_test, self.cat_test)
-        self.test_HLM.save(self.test_dir)
+        self.test_HLR.fit(self.X_train, self.Y_train, self.cat_train)
+        probs1 = self.test_HLR.predict_proba(self.X_test, self.cat_test)
+        self.test_HLR.save(self.test_dir)
 
-        HLM2 = HLM()
+        HLR2 = HLR()
 
-        HLM2.load(self.test_dir)
+        HLR2.load(self.test_dir)
 
-        self.assertEqual(self.test_HLM.num_cats, HLM2.num_cats)
-        self.assertEqual(self.test_HLM.num_pred, HLM2.num_pred)
-        self.assertEqual(summary(self.test_HLM.advi_trace), summary(HLM2.advi_trace))
+        self.assertEqual(self.test_HLR.num_cats, HLR2.num_cats)
+        self.assertEqual(self.test_HLR.num_pred, HLR2.num_pred)
+        self.assertEqual(summary(self.test_HLR.advi_trace), summary(HLR2.advi_trace))
 
-        probs2 = HLM2.predict_proba(self.X_test, self.cat_test)
+        probs2 = HLR2.predict_proba(self.X_test, self.cat_test)
 
         np.testing.assert_almost_equal(probs2, probs1, decimal=1)
