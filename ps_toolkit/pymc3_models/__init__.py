@@ -52,9 +52,6 @@ class BayesianModel(BaseEstimator):
     def fit(self):
         raise NotImplementedError
 
-    def predict_proba(self):
-        raise NotImplementedError
-
     def predict(self):
         raise NotImplementedError
 
