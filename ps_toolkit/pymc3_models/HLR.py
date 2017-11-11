@@ -1,5 +1,6 @@
 import numpy as np
 import pymc3 as pm
+from sklearn.metrics import accuracy_score
 import theano
 import theano.tensor as T
 
@@ -7,13 +8,13 @@ from ps_toolkit.exc import PSToolkitError
 from ps_toolkit.pymc3_models import BayesianModel
 
 
-class HLM(BayesianModel):
+class HLR(BayesianModel):
     """
-    Custom Hierachical Linear Model built using PyMC3.
+    Custom Hierachical Logistic Regression built using PyMC3.
     """
 
     def __init__(self):
-        super(HLM, self).__init__()
+        super(HLR, self).__init__()
         self.num_cats = None
 
     def create_model(self):
@@ -58,7 +59,7 @@ class HLM(BayesianModel):
 
     def fit(self, X, y, cats, n=200000, batch_size=100):
         """
-        Train the HLM model
+        Train the HLR model
 
         Parameters
         ----------
@@ -92,7 +93,7 @@ class HLM(BayesianModel):
 
     def predict_proba(self, X, cats, return_std=False):
         """
-        Predicts probabilities of new data with a trained HLM
+        Predicts probabilities of new data with a trained HLR
 
         Parameters
         ----------
@@ -120,13 +121,44 @@ class HLM(BayesianModel):
         else:
             return ppc['o'].mean(axis=0)
 
+    def predict(self, X, cats):
+        """
+        Predicts labels of new data with a trained model
+
+        Parameters
+        ----------
+        X : numpy array, shape [n_samples, n_features]
+
+        cats: numpy array, shape [n_samples, ]
+        """
+        ppc_mean = self.predict_proba(X, cats)
+
+        pred = ppc_mean > 0.5
+
+        return pred
+
+    def score(self, X, y, cats):
+        """
+        Scores new data with a trained model.
+
+        Parameters
+        ----------
+        X : numpy array, shape [n_samples, n_features]
+
+        y : numpy array, shape [n_samples, ]
+
+        cats: numpy array, shape [n_samples, ]
+        """
+
+        return accuracy_score(y, self.predict(X, cats))
+
     def save(self, file_prefix):
         params = {'num_cats': self.num_cats, 'num_pred': self.num_pred}
 
-        super(HLM, self).save(file_prefix, params)
+        super(HLR, self).save(file_prefix, params)
 
     def load(self, file_prefix):
-        params = super(HLM, self).load(file_prefix, load_custom_params=True)
+        params = super(HLR, self).load(file_prefix, load_custom_params=True)
 
         self.num_cats = params['num_cats']
         self.num_pred = params['num_pred']

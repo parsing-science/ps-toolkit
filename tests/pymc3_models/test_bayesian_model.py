@@ -18,3 +18,13 @@ class BayesianModelTestCase(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             BM = BayesianModel()
             BM.predict_proba()
+
+    def test_predict_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            BM = BayesianModel()
+            BM.predict()
+
+    def test_score_raises_not_implemented_error(self):
+        with self.assertRaises(NotImplementedError):
+            BM = BayesianModel()
+            BM.score()
