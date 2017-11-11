@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='PS_Toolkit',
-    version='2.1.0',
+    version='2.1.1',
     packages=find_packages(),
     include_package_data=False,
     zip_safe=False,
