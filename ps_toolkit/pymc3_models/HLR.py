@@ -10,7 +10,7 @@ from ps_toolkit.pymc3_models import BayesianModel
 
 class HLR(BayesianModel):
     """
-    Custom Hierachical Logistic Regression built using PyMC3.
+    Custom Hierarchical Logistic Regression built using PyMC3.
     """
 
     def __init__(self):
